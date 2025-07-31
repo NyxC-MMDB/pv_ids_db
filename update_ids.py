@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 MIN_PV_ID = 1
-MAX_PV_ID = 10000
+MAX_PV_ID = 4294967296
 
 Path("pv_ids").mkdir(exist_ok=True)
 
@@ -21,4 +21,4 @@ with open("pv_ids/reserved.json", "w") as f:
 with open("pv_ids/used.json", "w") as f:
     json.dump(sorted(used), f, indent=2)
 
-print(f"✔️ Updated PV IDs list (range {MIN_PV_ID}–{MAX_PV_ID}))
+print(f"✔️ Updated PV IDs list (range {MIN_PV_ID}–{MAX_PV_ID})")
