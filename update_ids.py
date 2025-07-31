@@ -12,7 +12,7 @@ data = resp.json()
 reserved = set(map(int, data["reserved_pvs"].keys()))
 used = set(map(int, data["uploaded_pvs"].keys()))
 
-all = set(range(1, 10001))
+all = set(range(1, 10000))
 
 free = sorted(list(all - reserved - used))
 
