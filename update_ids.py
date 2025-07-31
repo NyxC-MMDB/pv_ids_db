@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 MIN_PV_ID = 1
-MAX_PV_ID = 4294967296
+MAX_PV_ID = 10000
 
 Path("pv_ids").mkdir(exist_ok=True)
 
