@@ -1,0 +1,32 @@
+name: Update PV IDs
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Execute script
+        run: python update_ids.py
+
+      - name: Confirm and upload changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add pv_ids/*.json
+          git commit -m "🔄 Dairy PV IDs update" || echo "No changes were made"
+          git push
