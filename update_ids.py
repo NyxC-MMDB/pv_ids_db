@@ -2,6 +2,9 @@ import requests
 import json
 from pathlib import Path
 
+MIN_PV_ID = 1
+MAX_PV_ID = 4294967296
+
 Path("pv_ids").mkdir(exist_ok=True)
 
 url = "https://divamodarchive.com/api/v1/ids/all_pvs"
@@ -9,20 +12,13 @@ resp = requests.get(url)
 resp.raise_for_status()
 data = resp.json()
 
-reserved = set(map(int, data["reserved_pvs"].keys()))
-used = set(map(int, data["uploaded_pvs"].keys()))
-
-all = set(range(1, 10000))
-
-free = sorted(list(all - reserved - used))
+reserved = set(int(k) for k in data["reserved_pvs"].keys() if MIN_PV_ID <= int(k) <= MAX_PV_ID)
+used = set(int(k) for k in data["uploaded_pvs"].keys() if MIN_PV_ID <= int(k) <= MAX_PV_ID)
 
 with open("pv_ids/reserved.json", "w") as f:
-    json.dump(sorted(list(reserved)), f, indent=2)
+    json.dump(sorted(reserved), f, indent=2)
 
 with open("pv_ids/used.json", "w") as f:
-    json.dump(sorted(list(used)), f, indent=2)
+    json.dump(sorted(used), f, indent=2)
 
-with open("pv_ids/free.json", "w") as f:
-    json.dump(free, f, indent=2)
-
-print("✔️ Updated PV IDs database")
+print(f"✔️ Updated PV IDs list (range {MIN_PV_ID}–{MAX_PV_ID}))
