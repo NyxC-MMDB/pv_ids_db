@@ -9,7 +9,7 @@ This repository provides a daily-updated list of available, used, and reserved P
 - Generates three JSON files:
   - `used.json` – IDs currently in use
   - `reserved.json` – IDs manually reserved for future use
-  - `free.json` – IDs available for use (from 1 to 10000, excluding used and reserved)
+  - `free.json` – IDs available for use (from 1 to 9999, excluding used and reserved)
 
 ## Why only one API call?
 
