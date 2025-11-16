@@ -12,77 +12,99 @@ resp = requests.get(url)
 resp.raise_for_status()
 data = resp.json()
 
-reserved_pvs = data["reserved_pvs"]
-uploaded_pvs = ["uploaded_pvs"]
-users = data["users"]
+# Puede venir vacío, string, None, lista o dict, así que nos aseguramos:
+posts = data.get("posts", {})
+reserved_pvs = data.get("reserved_pvs", {})
+uploaded_pvs = data.get("uploaded_pvs", {})
+users = data.get("users", {})
+
+# Aseguramos que "users" sea un dict
+if not isinstance(users, dict):
+    users = {}
 
 reserved_slim = {}
 used_slim = {}
 
+# ============ PROCESAR RESERVADOS ============
 for pv_id_str, info in reserved_pvs.items():
-    pv_id = int(pv_id_str)
-    
-    if not (MIN_PV_ID <= MAX_PV_ID):
+    try:
+        pv_id = int(pv_id_str)
+    except:
         continue
-        
-    user_id = str(info.get("user"))
-    username = ""
-    
-    if user_id in users:
-        user_info = users[user_id]
-        username = user_info.get("display_name" or user_info.get("name") or "")
-        
-    reserved_slim[pv_id] = {
-        "username": username
-    }
 
+    if not (MIN_PV_ID <= pv_id <= MAX_PV_ID):
+        continue
+
+    user_id = info.get("user")
+    username = ""
+
+    if user_id is not None:
+        ukey = str(user_id)
+        if ukey in users:
+            uinfo = users[ukey]
+            username = uinfo.get("display_name") or uinfo.get("name") or ""
+
+    reserved_slim[pv_id] = {"username": username}
+
+
+# ============ PROCESAR USADOS ============
+# Caso 1: uploaded_pvs es dict (formato viejo)
 if isinstance(uploaded_pvs, dict):
     for pv_id_str, entries in uploaded_pvs.items():
-        pv_id = int(pv_id_str)
-        
-        if not (MIN_PV_ID <= MAX_PV_ID):
+        try:
+            pv_id = int(pv_id_str)
+        except:
             continue
-            
-        if not entries:
+
+        if not entries or not isinstance(entries, list):
             continue
-            
+
         entry = entries[0]
-        
+
         title = entry.get("name") or entry.get("name_en") or ""
-        uid = str(info.get("udi"))
+        uid = entry.get("uid")
         username = ""
-        
-        if udi in users:
-            user_info = users[udi]
-            username = user_info.get("display_name" or user_info.get("name") or "")  
-            
-        uploaded_slim[pv_id] = {
-            "title": title,
-            "username": username
-        }
+
+        if uid:
+            if uid in users:
+                uinfo = users[uid]
+                username = uinfo.get("display_name") or uinfo.get("name") or ""
+            elif str(uid) in users:
+                uinfo = users[str(uid)]
+                username = uinfo.get("display_name") or uinfo.get("name") or ""
+
+        used_slim[pv_id] = {"title": title, "username": username}
+
+# Caso 2: uploaded_pvs es lista (formato nuevo)
 elif isinstance(uploaded_pvs, list):
     for entry in uploaded_pvs:
+        if not isinstance(entry, dict):
+            continue
+
         pv_id = entry.get("id")
         if not isinstance(pv_id, int):
             continue
-            
-        title = entry.get("name") or entry.get("name_en") or ""
-        uid = str(info.get("udi"))
-        username = ""
-        
-        if udi in users:
-            user_info = users[udi]
-            username = user_info.get("display_name" or user_info.get("name") or "")  
-            
-        uploaded_slim[pv_id] = {
-            "title": title,
-            "username": username
-        }
 
+        title = entry.get("name") or entry.get("name_en") or ""
+        uid = entry.get("uid")
+        username = ""
+
+        if uid:
+            if uid in users:
+                uinfo = users[uid]
+                username = uinfo.get("display_name") or uinfo.get("name") or ""
+            elif str(uid) in users:
+                uinfo = users[str(uid)]
+                username = uinfo.get("display_name") or uinfo.get("name") or ""
+
+        used_slim[pv_id] = {"title": title, "username": username}
+
+
+# ============ GUARDAR ============
 with open("pv_ids/reserved_slim.json", "w", encoding="utf8") as f:
     json.dump(reserved_slim, f, indent=2, ensure_ascii=False)
 
 with open("pv_ids/used_slim.json", "w", encoding="utf8") as f:
     json.dump(used_slim, f, indent=2, ensure_ascii=False)
 
-print("✔️ Saved slim PV metadata (id/title/username only)")
+print("✔️ Saved slim PV metadata (ID + title + username)")
