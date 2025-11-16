@@ -49,6 +49,7 @@ for pv_id_str, info in reserved_pvs.items():
 
 # ============ PROCESAR USADOS ============
 # Caso 1: uploaded_pvs es dict (formato viejo)
+# ============ PROCESAR USADOS ============
 if isinstance(uploaded_pvs, dict):
     for pv_id_str, entries in uploaded_pvs.items():
         try:
@@ -62,20 +63,22 @@ if isinstance(uploaded_pvs, dict):
         entry = entries[0]
 
         title = entry.get("name") or entry.get("name_en") or ""
-        uid = entry.get("uid")
+
+        # --- NUEVO: obtener usuario desde posts ---
         username = ""
+        post_id = entry.get("post")
 
-        if uid:
-            if uid in users:
-                uinfo = users[uid]
-                username = uinfo.get("display_name") or uinfo.get("name") or ""
-            elif str(uid) in users:
-                uinfo = users[str(uid)]
-                username = uinfo.get("display_name") or uinfo.get("name") or ""
+        if post_id and str(post_id) in posts:
+            author_list = posts[str(post_id)].get("authors", [])
+            if author_list:
+                author = author_list[0]
+                username = author.get("display_name") or author.get("name") or ""
 
-        used_slim[pv_id] = {"title": title, "username": username}
+        used_slim[pv_id] = {
+            "title": title,
+            "username": username
+        }
 
-# Caso 2: uploaded_pvs es lista (formato nuevo)
 elif isinstance(uploaded_pvs, list):
     for entry in uploaded_pvs:
         if not isinstance(entry, dict):
@@ -86,18 +89,21 @@ elif isinstance(uploaded_pvs, list):
             continue
 
         title = entry.get("name") or entry.get("name_en") or ""
-        uid = entry.get("uid")
+
+        # --- NUEVO: obtener usuario desde posts ---
         username = ""
+        post_id = entry.get("post")
 
-        if uid:
-            if uid in users:
-                uinfo = users[uid]
-                username = uinfo.get("display_name") or uinfo.get("name") or ""
-            elif str(uid) in users:
-                uinfo = users[str(uid)]
-                username = uinfo.get("display_name") or uinfo.get("name") or ""
+        if post_id and str(post_id) in posts:
+            author_list = posts[str(post_id)].get("authors", [])
+            if author_list:
+                author = author_list[0]
+                username = author.get("display_name") or author.get("name") or ""
 
-        used_slim[pv_id] = {"title": title, "username": username}
+        used_slim[pv_id] = {
+            "title": title,
+            "username": username
+        }
 
 
 # ============ GUARDAR ============
