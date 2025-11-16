@@ -61,17 +61,11 @@ if isinstance(uploaded_pvs, dict):
             "username": username
         }
 elif isinstance(uploaded_ids, list):
-    for pv_id_str, entries in uploaded_pvs.items():
-        pv_id = int(pv_id_str)
-        
-        if not (MIN_PV_ID <= MAX_PV_ID):
+    for entry in uploaded-pvs:
+        pv_id = int("id")
+        if not isinstance(pv_id, int):
             continue
             
-        if not entries:
-            continue
-            
-        entry = entries[0]
-        
         title = entry.get("name") or entry.get("name_en") or ""
         uid = str(info.get("udi"))
         username = ""
