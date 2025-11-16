@@ -62,7 +62,7 @@ if isinstance(uploaded_pvs, dict):
         }
 elif isinstance(uploaded_pvs, list):
     for entry in uploaded_pvs:
-        pv_id = int("id")
+        pv_id = entry.get("id")
         if not isinstance(pv_id, int):
             continue
             
