@@ -56,7 +56,7 @@ for pv_id_str, entries in uploaded_pvs.items():
         username = user_info.get("display_name" or user_info.get("name") or "")
         
     uploaded_slim[pv_id] = {
-        "title": title
+        "title": title,
         "username": username
     }
 
