@@ -12,20 +12,21 @@ resp = requests.get(url)
 resp.raise_for_status()
 data = resp.json()
 
-# Puede venir vacío, string, None, lista o dict, así que nos aseguramos:
+# Normalizar valores
 posts = data.get("posts", {})
 reserved_pvs = data.get("reserved_pvs", {})
 uploaded_pvs = data.get("uploaded_pvs", {})
 users = data.get("users", {})
 
-# Aseguramos que "users" sea un dict
 if not isinstance(users, dict):
     users = {}
 
 reserved_slim = {}
 used_slim = {}
 
-# ============ PROCESAR RESERVADOS ============
+# ======================================================
+#                  PROCESAR RESERVADOS
+# ======================================================
 for pv_id_str, info in reserved_pvs.items():
     try:
         pv_id = int(pv_id_str)
@@ -44,12 +45,31 @@ for pv_id_str, info in reserved_pvs.items():
             uinfo = users[ukey]
             username = uinfo.get("display_name") or uinfo.get("name") or ""
 
-    reserved_slim[pv_id] = {"username": username}
+    reserved_slim[pv_id] = {
+        "username": username
+    }
 
 
-# ============ PROCESAR USADOS ============
-# Caso 1: uploaded_pvs es dict (formato viejo)
-# ============ PROCESAR USADOS ============
+# ======================================================
+#                  PROCESAR USADOS
+# ======================================================
+
+def get_authors_from_post(post_id):
+    """Devuelve string con todos los autores, o 'MM+'"""
+    if post_id and str(post_id) in posts:
+        authors_list = posts[str(post_id)].get("authors", [])
+        if authors_list:
+            names = [
+                (a.get("display_name") or a.get("name") or "")
+                for a in authors_list
+            ]
+            cleaned = [n for n in names if n]
+            if cleaned:
+                return ", ".join(cleaned)
+    return "MM+"  # fallback
+
+
+# Caso 1 — Formato dict (API vieja)
 if isinstance(uploaded_pvs, dict):
     for pv_id_str, entries in uploaded_pvs.items():
         try:
@@ -62,26 +82,20 @@ if isinstance(uploaded_pvs, dict):
 
         entry = entries[0]
 
-        title = entry.get("name") or entry.get("name_en") or ""
+        title = entry.get("name") or ""
+        title_en = entry.get("name_en") or ""
 
-        username = "MM+"  # fallback para PVs sin autor (juego base)
+        # obtener autores
         post_id = entry.get("post")
-
-        if post_id and str(post_id) in posts:
-            authors_list = posts[str(post_id)].get("authors", [])
-    
-            if authors_list:
-                # concatenar todos los nombres
-                username = ", ".join(
-                    (a.get("display_name") or a.get("name") or "")
-                    for a in authors_list
-                ) or "MM+"
+        username = get_authors_from_post(post_id)
 
         used_slim[pv_id] = {
             "title": title,
+            "title_en": title_en,
             "username": username
         }
 
+# Caso 2 — Formato lista (API nueva)
 elif isinstance(uploaded_pvs, list):
     for entry in uploaded_pvs:
         if not isinstance(entry, dict):
@@ -91,32 +105,27 @@ elif isinstance(uploaded_pvs, list):
         if not isinstance(pv_id, int):
             continue
 
-        title = entry.get("name") or entry.get("name_en") or ""
+        title = entry.get("name") or ""
+        title_en = entry.get("name_en") or ""
 
-        username = "MM+"  # fallback para PVs sin autor (juego base)
+        # obtener autores
         post_id = entry.get("post")
+        username = get_authors_from_post(post_id)
 
-        if post_id and str(post_id) in posts:
-            authors_list = posts[str(post_id)].get("authors", [])
-    
-            if authors_list:
-                # concatenar todos los nombres
-                username = ", ".join(
-                    (a.get("display_name") or a.get("name") or "")
-                    for a in authors_list
-                ) or "MM+"
-                
         used_slim[pv_id] = {
             "title": title,
+            "title_en": title_en,
             "username": username
         }
 
 
-# ============ GUARDAR ============
+# ======================================================
+#                      GUARDAR
+# ======================================================
 with open("pv_ids/reserved_slim.json", "w", encoding="utf8") as f:
     json.dump(reserved_slim, f, indent=2, ensure_ascii=False)
 
 with open("pv_ids/used_slim.json", "w", encoding="utf8") as f:
     json.dump(used_slim, f, indent=2, ensure_ascii=False)
 
-print("✔️ Saved slim PV metadata (ID + title + username)")
+print("✔️ Saved slim PV metadata (ID + title + title_en + username)")
