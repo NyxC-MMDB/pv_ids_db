@@ -16,18 +16,22 @@ reserved_slim = {}
 for k, v in data["reserved_pvs"].items():
     pv = int(k)
     if MIN_PV_ID <= pv <= MAX_PV_ID:
+        title = v[0] if len(v) > 0 else ""
+        username = v[1] if len(v) > 1 else ""
         reserved_slim[pv] = {
-            "title": v.get("title", ""),
-            "username": v.get("username", "")
+            "title": title,
+            "username": username
         }
 
 used_slim = {}
 for k, v in data["uploaded_pvs"].items():
     pv = int(k)
     if MIN_PV_ID <= pv <= MAX_PV_ID:
+        title = v[0] if len(v) > 0 else ""
+        username = v[1] if len(v) > 1 else ""
         used_slim[pv] = {
-            "title": v.get("title", ""),
-            "username": v.get("username", "")
+            "title": title,
+            "username": username
         }
 
 with open("pv_ids/reserved_slim.json", "w", encoding="utf8") as f:
