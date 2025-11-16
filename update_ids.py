@@ -60,8 +60,8 @@ if isinstance(uploaded_pvs, dict):
             "title": title,
             "username": username
         }
-elif isinstance(uploaded_ids, list):
-    for entry in uploaded-pvs:
+elif isinstance(uploaded_pvs, list):
+    for entry in uploaded_pvs:
         pv_id = int("id")
         if not isinstance(pv_id, int):
             continue
