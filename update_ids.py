@@ -64,15 +64,18 @@ if isinstance(uploaded_pvs, dict):
 
         title = entry.get("name") or entry.get("name_en") or ""
 
-        # --- NUEVO: obtener usuario desde posts ---
-        username = ""
+        username = "MM+"  # fallback para PVs sin autor (juego base)
         post_id = entry.get("post")
 
         if post_id and str(post_id) in posts:
-            author_list = posts[str(post_id)].get("authors", [])
-            if author_list:
-                author = author_list[0]
-                username = author.get("display_name") or author.get("name") or ""
+            authors_list = posts[str(post_id)].get("authors", [])
+    
+            if authors_list:
+                # concatenar todos los nombres
+                username = ", ".join(
+                    (a.get("display_name") or a.get("name") or "")
+                    for a in authors_list
+                ) or "MM+"
 
         used_slim[pv_id] = {
             "title": title,
@@ -90,16 +93,19 @@ elif isinstance(uploaded_pvs, list):
 
         title = entry.get("name") or entry.get("name_en") or ""
 
-        # --- NUEVO: obtener usuario desde posts ---
-        username = ""
+        username = "MM+"  # fallback para PVs sin autor (juego base)
         post_id = entry.get("post")
 
         if post_id and str(post_id) in posts:
-            author_list = posts[str(post_id)].get("authors", [])
-            if author_list:
-                author = author_list[0]
-                username = author.get("display_name") or author.get("name") or ""
-
+            authors_list = posts[str(post_id)].get("authors", [])
+    
+            if authors_list:
+                # concatenar todos los nombres
+                username = ", ".join(
+                    (a.get("display_name") or a.get("name") or "")
+                    for a in authors_list
+                ) or "MM+"
+                
         used_slim[pv_id] = {
             "title": title,
             "username": username
