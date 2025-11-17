@@ -118,5 +118,3 @@ Full credit for all API content belongs to DivaModArchive.
 
 The generated JSON files and update scripts are **free to use, modify, and distribute**.
 Attribution is appreciated but **not required**.
-
-¿Quieres que lo deje listo para copiar-pegar en tu repositorio?
