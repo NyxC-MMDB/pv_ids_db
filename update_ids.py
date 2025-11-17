@@ -12,7 +12,6 @@ resp = requests.get(url)
 resp.raise_for_status()
 data = resp.json()
 
-# Normalizar valores
 posts = data.get("posts", {})
 reserved_pvs = data.get("reserved_pvs", {})
 uploaded_pvs = data.get("uploaded_pvs", {})
@@ -24,9 +23,6 @@ if not isinstance(users, dict):
 reserved_slim = {}
 used_slim = {}
 
-# ======================================================
-#                  PROCESAR RESERVADOS
-# ======================================================
 for pv_id_str, info in reserved_pvs.items():
     try:
         pv_id = int(pv_id_str)
@@ -49,13 +45,8 @@ for pv_id_str, info in reserved_pvs.items():
         "username": username
     }
 
-
-# ======================================================
-#                  PROCESAR USADOS
-# ======================================================
-
 def get_authors_from_post(post_id):
-    """Devuelve string con todos los autores, o 'MM+'"""
+    """Returns a string with all authors, or 'MM'"""
     if post_id and str(post_id) in posts:
         authors_list = posts[str(post_id)].get("authors", [])
         if authors_list:
@@ -66,10 +57,8 @@ def get_authors_from_post(post_id):
             cleaned = [n for n in names if n]
             if cleaned:
                 return ", ".join(cleaned)
-    return "MM+"  # fallback
+    return "MM+"
 
-
-# Caso 1 — Formato dict (API vieja)
 if isinstance(uploaded_pvs, dict):
     for pv_id_str, entries in uploaded_pvs.items():
         try:
@@ -85,7 +74,6 @@ if isinstance(uploaded_pvs, dict):
         title = entry.get("name") or ""
         title_en = entry.get("name_en") or ""
 
-        # obtener autores
         post_id = entry.get("post")
         username = get_authors_from_post(post_id)
 
@@ -95,7 +83,6 @@ if isinstance(uploaded_pvs, dict):
             "username": username
         }
 
-# Caso 2 — Formato lista (API nueva)
 elif isinstance(uploaded_pvs, list):
     for entry in uploaded_pvs:
         if not isinstance(entry, dict):
@@ -108,7 +95,6 @@ elif isinstance(uploaded_pvs, list):
         title = entry.get("name") or ""
         title_en = entry.get("name_en") or ""
 
-        # obtener autores
         post_id = entry.get("post")
         username = get_authors_from_post(post_id)
 
@@ -118,10 +104,6 @@ elif isinstance(uploaded_pvs, list):
             "username": username
         }
 
-
-# ======================================================
-#                      GUARDAR
-# ======================================================
 with open("pv_ids/reserved_slim.json", "w", encoding="utf8") as f:
     json.dump(reserved_slim, f, indent=2, ensure_ascii=False)
 
