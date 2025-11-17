@@ -1,6 +1,6 @@
 # Project Diva PV ID Tracker
 
-Generates a **daily-updated dataset** of *used*, *reserved*, and *available* PV IDs for the Project Diva modding community.
+Generates a **daily-updated dataset** of *used* and *reserved* PV IDs for the Project Diva modding community.
 
 ---
 
@@ -66,12 +66,6 @@ Reserved PV IDs with the user who reserved them.
   }
 }
 ```
-
----
-
-### *(Optional — if you add it)* `free.json`
-
-All IDs between 1 and 9999 not present in either list.
 
 ---
 
