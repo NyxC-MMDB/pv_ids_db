@@ -28,5 +28,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add pv_ids/*.json
-          git commit -m "🔄 Daily PV IDs update" || echo "No changes were made"
+          git commit -m "🔄 Daily PV IDs update" --allow-empty || echo "No changes were made"
           git push
